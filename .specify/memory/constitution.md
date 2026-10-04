@@ -1,16 +1,29 @@
+<!--
+Sync Impact Report (review scratch material; remove before committing)
+Version change: 1.0.0 → 1.1.0. Previous version and ratification date recovered
+from the prior constitution in this conversation; current file lacked metadata.
+Modified principles: I, IV, V, VI, VIII, IX, X retain their titles; clarified mandatory
+security, citations, identity, privacy, simplicity, delivery, and telemetry requirements.
+Added sections: restored project title, Product Scope and Constraints,
+Development Workflow and Quality Gates, Governance, and version/date metadata.
+Removed sections: none. Existing ten-principle list structure preserved.
+Follow-up TODOs: none. Dependent templates remain unchanged.
+-->
+# Knowledge-as-a-Service Constitution
+
 ## Core Principles
 
 ### I. Security First
 
-- Treat all customer knowledge as sensitive and untrusted input.
-- Apply least-privilege access.
+- All customer knowledge MUST be treated as sensitive and untrusted input.
+- Access MUST follow least privilege.
 - Authorization MUST deny access by default.
-- Validate all external inputs. 
-- Identify trust boundaries before implementation.
-- Identify relevant abuse cases before implementation.
-- Enforce file type and file size restrictions for uploads.
-- Process uploaded content in an isolated manner.
-- Treat retrieved document content as data/evidence, never as trusted system instructions.
+- All external inputs MUST be validated.
+- Designs MUST identify trust boundaries before implementation.
+- Designs MUST identify relevant abuse cases before implementation.
+- Uploads MUST enforce file type and file size restrictions.
+- Uploaded content MUST be processed in an isolated manner.
+- Retrieved document content MUST be treated as evidence, never as trusted system instructions.
 - Retrieved content MUST NOT override system security policies.
 - Secrets MUST NOT exist in source code, frontend bundles, or logs.
 - Secrets MUST be stored in an approved secret-management system.
@@ -54,7 +67,7 @@
 - Every substantive factual claim MUST be supported by retrieved evidence.
 - Answers MUST provide citations for supporting sources.
 - Citations MUST identify the source document/version.
-- Citations SHOULD identify a usable source location when available, such as:
+- Citations MUST identify a usable source location when available, such as:
   - PDF page
   - document passage
   - video timestamp
@@ -69,7 +82,7 @@
 
 ### V. Customer Data Privacy and Encryption
 
-- Treat the following as customer data:
+- The following MUST be treated as customer data:
   - source documents
   - extracted text
   - document chunks
@@ -79,8 +92,9 @@
   - processing metadata
 - Customer data MUST only be collected and processed for documented product purposes.
 - Customer data MUST NOT be shared between tenants.
-- Customer data MUST NOT be used to train shared models without explicit customer authorization.
-- External AI/model providers MUST have documented data-use and retention policies.
+- Customer data MUST NOT be used to train models without explicit customer authorization.
+- External AI/model providers MUST have documented data-use and retention controls consistent
+  with these privacy requirements.
 - Customer data MUST be encrypted in transit.
 - Customer data MUST be encrypted at rest.
 - Encryption applies to:
@@ -99,7 +113,7 @@
 ### VI. OAuth2/OIDC Identity and Explicit Authorization
 
 - Interactive authentication MUST use OAuth2/OIDC.
-- Authentication SHOULD use a vetted identity provider or standards-compliant identity service.
+- Authentication MUST use a vetted identity provider or standards-compliant identity service.
 - Interactive clients MUST use Authorization Code with PKCE.
 - Tokens MUST be validated for:
   - signature
@@ -141,17 +155,17 @@
 
 ### VIII. Simple Architecture and Incremental Vertical Slices
 
-- Use the fewest components necessary to satisfy verified requirements.
-- Maintain clear boundaries between:
+- Architecture MUST use the fewest components necessary to satisfy verified requirements.
+- Architecture MUST maintain clear boundaries between:
   - identity
   - ingestion
   - retrieval
   - answer generation
-- Do NOT introduce a new service without a clear requirement.
-- Do NOT introduce a new framework without justification.
-- Do NOT introduce provider abstractions before they are needed.
-- Avoid unnecessary distributed coordination.
-- Build functionality as small end-to-end vertical slices.
+- New services MUST have a recorded requirement and justification.
+- New frameworks MUST have a recorded justification.
+- Provider abstractions MUST have a verified requirement before introduction.
+- Distributed coordination MUST have a recorded requirement and justification.
+- Functionality MUST be delivered as small end-to-end vertical slices.
 - Every slice MUST connect customer behavior through:
   - API
   - persistence
@@ -170,7 +184,7 @@
 - Persistent infrastructure MUST be defined as Infrastructure as Code.
 - Access policies MUST be defined as code.
 - Encryption configuration MUST be defined as code.
-- Environment configuration MUST be version controlled where appropriate.
+- Non-secret environment configuration MUST be version controlled.
 - Secrets MUST be referenced, never embedded in infrastructure code.
 - Development, test, and production environments MUST be explicitly isolated.
 - Infrastructure changes MUST be repeatable.
@@ -178,7 +192,7 @@
 - Database/schema migrations MUST be controlled.
 - Rollback or recovery procedures MUST be documented.
 - Emergency manual infrastructure changes MUST be recorded.
-- Manual changes MUST subsequently be reconciled into Infrastructure as Code.
+- Manual changes MUST be reconciled into Infrastructure as Code before the next routine deployment.
 - Durable customer data MUST be backed up.
 - Restore procedures MUST be tested.
 
@@ -201,8 +215,9 @@
   - supported questions
   - unsupported questions
   - conflicting-evidence questions
-- Use structured logging.
-- Use metrics and distributed tracing where appropriate.
+- Services MUST emit structured logs that allow requests and jobs to be correlated.
+- Services MUST emit operational metrics. Operations crossing service or job boundaries
+  MUST provide correlated traces.
 - Telemetry MUST NOT expose raw customer knowledge.
 - Observability MUST track:
   - ingestion failures
@@ -216,3 +231,60 @@
 - Production services MUST expose health checks.
 - Production services MUST have actionable alerts.
 - Operational/recovery procedures MUST be documented.
+
+## Product Scope and Constraints
+
+The product MUST turn private organizational knowledge into a secure knowledge API and
+hosted chat without customer-managed RAG infrastructure.
+
+V1 scope MUST follow `docs/product-vision.md`: customer registration, workspace creation,
+PDF upload, video, document processing, embeddings, vector retrieval, natural-language
+questions, grounded answers, citations, and tenant isolation. Video specifications MUST
+define supported inputs, processing behavior, and citation locations before implementation.
+
+Audio, SharePoint, Google Drive, Confluence, database connectors, autonomous agents, billing,
+and multiple LLM providers are outside V1. Adding them MUST first update the product scope
+and an approved feature specification. Video support MUST NOT silently expand into standalone
+audio ingestion.
+
+V1 acceptance MUST demonstrate account creation → workspace creation → PDF upload → processing
+completion → question → grounded answer → source citation, without manual configuration by
+the platform team. Hosted chat MUST enforce the knowledge API's identity, authorization,
+isolation, and evidence guarantees.
+
+## Development Workflow and Quality Gates
+
+Specifications MUST define user outcomes, scope, tenant boundaries, evidence and citation
+behavior, and testable acceptance criteria. Plans MUST include a Constitution Check covering
+applicable principles, trust boundaries, privacy, API contracts, operational needs, and
+complexity. Tasks MUST organize work into vertical slices with their verification activities.
+
+Every change MUST receive review for constitutional compliance. Required automated tests,
+static checks, dependency and secret scanning, and applicable AI evaluations MUST pass before
+merge. Failed isolation, unsupported factual answers, invalid citations, and known exploitable
+security defects MUST block release. Infrastructure changes MUST have a reviewed change plan.
+Production readiness MUST include documented operational targets, telemetry, recovery
+procedures, and verification of the relevant customer journey.
+
+## Governance
+
+This constitution takes precedence over conflicting specifications, plans, tasks, and local
+implementation conventions. `docs/product-vision.md` supplies product intent and scope;
+conflicts MUST be resolved explicitly before implementation proceeds.
+
+Amendments MUST document rationale, affected principles, customer and security impact,
+migration work, and required updates to dependent artifacts. A project maintainer MUST approve
+amendments before they take effect. Feature-level exceptions MUST NOT waive non-negotiable
+principles; changing a principle requires a constitutional amendment.
+
+Versioning MUST follow semantic versioning: MAJOR for incompatible removal or redefinition
+of principles or governance, MINOR for new principles or materially expanded requirements,
+and PATCH for clarifications that do not change obligations. Amendments MUST update the
+version and last-amended date while preserving the original ratification date.
+
+Compliance MUST be checked during specification, planning, code review, and release readiness.
+Violations MUST be recorded and corrected. Security, isolation, privacy, and answer-grounding
+violations MUST block the affected release. Maintainers MUST review this constitution when
+product scope or trust boundaries change.
+
+**Version**: 1.1.0 | **Ratified**: 2026-10-03 | **Last Amended**: 2026-10-04
